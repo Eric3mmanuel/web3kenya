@@ -1,0 +1,20 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+body {
+  font-family: "Nunito", sans-serif;
+  font-weight: 400; /* default regular */
+}
+
+h1, h2, h3 {
+  font-weight: 900; /* Black */
+}
+
+p {
+  font-weight: 400; /* Regular */
+}
+
+strong {
+  font-weight: 700; /* Bold */
+}
