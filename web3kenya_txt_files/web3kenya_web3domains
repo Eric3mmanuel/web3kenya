@@ -1,0 +1,1088 @@
+//was thinking of web3domains.co.ke to divert from web3kenya 
+
+Yes. And I’d make the first version **much smaller than a full Truehost-style platform**.
+
+Your goal for V1 should be:
+
+> **A beautiful Web3Kenya platform where a user can search for an ENS `.eth` name, connect their wallet, register it, and manage its basic records.**
+
+You can expand into other Web3 naming systems, hosting, M-Pesa, etc. **after this works.**
+
+One important current detail: ENS documentation now has ENSv2 material, and it says read-only app integrations largely continue through the same resolution interfaces, while write flows are ENSv2-specific and still evolving. So I'd build your first version with the current ENS architecture in mind rather than hard-coding assumptions about the old system. ([ENS Documentation][1])
+
+# 🚀 Web3Kenya Domains — V1 Roadmap
+
+Here's the exact path I'd take:
+
+```text
+                    WEB3KENYA DOMAINS
+                           │
+             ┌─────────────┴─────────────┐
+             │                           │
+        DOMAIN SEARCH              CONNECT WALLET
+             │                           │
+       "mike.eth"                  MetaMask/etc.
+             │                           │
+        Availability                     │
+             │                           │
+          Pricing                         │
+             └─────────────┬─────────────┘
+                           │
+                      REGISTER
+                           │
+                    Blockchain TX
+                           │
+                    Domain Owned
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+        Manage Domain             Profile Records
+              │                         │
+       Address / Resolver        Twitter / Avatar
+       Text / Contenthash        Website / Email
+```
+
+That is your **MVP**.
+
+---
+
+# PHASE 0 — Understand what you're actually building
+
+Before touching code, understand the difference between:
+
+### Traditional domain registrar
+
+```text
+User
+ ↓
+Truehost
+ ↓
+Registrar
+ ↓
+Registry
+ ↓
+DNS
+ ↓
+Website
+```
+
+versus:
+
+### Web3 domain platform
+
+```text
+User
+ ↓
+Web3Kenya
+ ↓
+Wallet
+ ↓
+ENS contracts
+ ↓
+Ethereum
+ ↓
+Resolver
+ ↓
+Wallet / records / content
+```
+
+Your platform isn't necessarily going to *own* the domains.
+
+You're building the **user experience and infrastructure that interacts with the underlying naming protocol.**
+
+That's a very important distinction.
+
+---
+
+# PHASE 1 — Get really comfortable with TypeScript
+
+### Learn
+
+You don't need to become a TypeScript wizard.
+
+Focus on:
+
+* types
+* interfaces
+* generics
+* async/await
+* promises
+* modules
+* error handling
+* API responses
+* environment variables
+
+You should be able to understand something like:
+
+```typescript
+const address: `0x${string}` = "0x...";
+```
+
+and understand why it isn't simply a normal JavaScript string.
+
+### Goal
+
+You should be comfortable building small TypeScript applications without constantly fighting the language.
+
+---
+
+# PHASE 2 — Next.js
+
+You're already working with Next.js, so don't spend months here.
+
+Focus on:
+
+* App Router
+* Server Components
+* Client Components
+* routing
+* layouts
+* API/route handlers
+* environment variables
+* forms
+* loading/error states
+* deployment
+
+The official Next.js documentation currently recommends the App Router for newer React features, and its course covers routing, data fetching, mutations, authentication and database integration. ([Next.js][2])
+
+### Build this mini-project
+
+Before Web3Kenya Domains:
+
+**Mini ENS Search UI**
+
+```text
+Search ENS
+
+[ vitalik.eth              ] [Search]
+
+Address:
+0x...
+
+Avatar:
+...
+
+Twitter:
+...
+```
+
+Don't worry about registration yet.
+
+You're learning to **read ENS data**.
+
+---
+
+# PHASE 3 — Learn viem
+
+This is one of the most important things for you.
+
+I'd prioritize **viem** rather than starting another Web3 library.
+
+Learn:
+
+* Public Client
+* Wallet Client
+* transports
+* RPC
+* chain configuration
+* contract reads
+* contract writes
+* ABI
+* transactions
+* waiting for receipts
+* ENS utilities
+
+For example, conceptually:
+
+```typescript
+const address = await client.getEnsAddress({
+    name: "vitalik.eth"
+})
+```
+
+ENS's current developer documentation specifically demonstrates ENS resolution using viem. ([ENS Documentation][1])
+
+### Your mini-project
+
+Build:
+
+**ENS Lookup Tool**
+
+Input:
+
+```text
+nick.eth
+```
+
+Output:
+
+```text
+ETH Address
+Avatar
+Twitter
+GitHub
+Website
+Email
+```
+
+---
+
+# PHASE 4 — Wallet connection
+
+Now bring in **wagmi**.
+
+Learn:
+
+* `WagmiConfig` / current wagmi configuration patterns
+* connectors
+* wallet connection
+* account state
+* chain state
+* transaction state
+* signing
+* disconnecting
+
+Your interface should eventually do:
+
+```text
+┌──────────────────────────┐
+│ Connect Wallet           │
+└──────────────────────────┘
+```
+
+User clicks.
+
+```text
+MetaMask
+Coinbase Wallet
+WalletConnect
+```
+
+User connects.
+
+Your application displays:
+
+```text
+0x71C...9F2
+
+Ethereum Mainnet ✓
+```
+
+### Don't skip this concept
+
+Understand the difference between:
+
+**Read**
+
+> "What ENS name belongs to this address?"
+
+and:
+
+**Write**
+
+> "Register this ENS name and spend ETH."
+
+Reads don't require the user to sign anything.
+
+Writes do.
+
+---
+
+# PHASE 5 — ENS fundamentals
+
+Now go deep.
+
+This is where I'd spend a lot of your study time.
+
+You need to understand:
+
+### ENS Registry
+
+The central registry.
+
+### Registrar
+
+Controls registration of names.
+
+### Resolver
+
+Stores/resolves records.
+
+### Name Wrapper
+
+Allows names/subnames to have additional ownership/permission functionality.
+
+### Universal Resolver
+
+Helps applications resolve names.
+
+ENS describes resolution as involving the Registry, Registrars and Resolvers, with the resolver being responsible for retrieving records associated with a name. ([ENS Documentation][3])
+
+---
+
+# PHASE 6 — ENS name resolution
+
+Learn:
+
+### Forward resolution
+
+```text
+alice.eth
+     ↓
+0x123...
+```
+
+### Reverse resolution
+
+```text
+0x123...
+     ↓
+alice.eth
+```
+
+This is fundamental to Web3 UX.
+
+ENS describes these as the two major resolution paths: name → address and address → name. ([ENS Documentation][4])
+
+---
+
+# PHASE 7 — ENS records
+
+Then learn how names store information.
+
+For example:
+
+```text
+alice.eth
+
+ETH:
+0x123...
+
+BTC:
+bc1...
+
+Twitter:
+@alice
+
+GitHub:
+alice
+
+Website:
+https://alice.xyz
+
+Avatar:
+ipfs://...
+
+Email:
+alice@example.com
+```
+
+You'll learn:
+
+* `addr()`
+* `text()`
+* `contenthash()`
+* avatar records
+* coin addresses
+* ABI records
+* primary names
+
+ENS's Public Resolver supports these kinds of records, while resolver permissions determine who can modify them. ([ENS Documentation][5])
+
+---
+
+# PHASE 8 — ENS registration
+
+**This is where Web3Kenya Domains starts becoming a real product.**
+
+You need to understand the registration lifecycle:
+
+```text
+User searches name
+       ↓
+Check availability
+       ↓
+Calculate price
+       ↓
+User chooses duration
+       ↓
+Connect wallet
+       ↓
+Approve/payment if required
+       ↓
+Register
+       ↓
+Wait for transaction
+       ↓
+Domain registered
+       ↓
+Display domain dashboard
+```
+
+You'll need to understand:
+
+* availability
+* registration duration
+* pricing
+* registration transactions
+* gas
+* transaction receipts
+* expiry
+* renewal
+* ownership
+* resolver configuration
+
+Current ENSv2 documentation shows registration flows involving availability checks, pricing, payment and registration through the registry infrastructure. ([ENS Documentation][6])
+
+---
+
+# PHASE 9 — Build the actual Web3Kenya Domains MVP
+
+Now stop studying and build.
+
+I'd structure the application roughly like:
+
+```text
+/app
+   /page.tsx
+
+   /search
+      /page.tsx
+
+   /domain
+      /[name]
+         /page.tsx
+
+   /dashboard
+      /page.tsx
+
+      /domains
+         /page.tsx
+
+      /[name]
+         /page.tsx
+
+   /api
+      /...
+```
+
+And components:
+
+```text
+/components
+
+  Navbar
+  WalletButton
+  DomainSearch
+  DomainResult
+  AvailabilityBadge
+  DomainPrice
+  RegisterButton
+  TransactionStatus
+  DomainCard
+  RecordEditor
+  ProfileEditor
+```
+
+---
+
+# PHASE 10 — Build the Domain Search
+
+This should be your first real feature.
+
+User enters:
+
+```text
+mike
+```
+
+Your app automatically turns it into:
+
+```text
+mike.eth
+```
+
+Then:
+
+```text
+Searching...
+```
+
+↓
+
+```text
+mike.eth
+
+Available ✓
+
+Registration:
+1 year — $X
+2 years — $X
+5 years — $X
+```
+
+Or:
+
+```text
+mike.eth
+
+Already registered
+Owned by:
+0x...
+```
+
+### Important
+
+Don't simply create a database saying:
+
+> "mike.eth = available."
+
+The blockchain/protocol state needs to be your source of truth for registration.
+
+---
+
+# PHASE 11 — Registration UI
+
+Make the experience extremely simple.
+
+Something like:
+
+```text
+┌─────────────────────────────────┐
+│          mike.eth               │
+│                                 │
+│        Available ✓              │
+│                                 │
+│   Registration period           │
+│                                 │
+│   ○ 1 Year                      │
+│   ○ 2 Years                     │
+│   ○ 5 Years                     │
+│                                 │
+│   Registration     $X            │
+│   Network fee     ~$X            │
+│                                 │
+│   [ Register mike.eth ]         │
+└─────────────────────────────────┘
+```
+
+Click.
+
+Wallet opens.
+
+User approves/signs.
+
+Then:
+
+```text
+Registering...
+
+████████░░░░
+
+Transaction submitted ✓
+
+Waiting for confirmation...
+```
+
+Then:
+
+# 🎉 Congratulations!
+
+```text
+mike.eth
+
+You now own this Web3 identity.
+```
+
+That experience is the heart of your product.
+
+---
+
+# PHASE 12 — Build the Domain Dashboard
+
+Once the domain is registered:
+
+```text
+MY DOMAINS
+
+┌─────────────────────────────┐
+│ mike.eth                    │
+│                             │
+│ ✓ Active                     │
+│ Expires: Sept 5, 2027       │
+│                             │
+│ [Manage]                    │
+└─────────────────────────────┘
+```
+
+Click **Manage**.
+
+You get:
+
+```text
+mike.eth
+────────────────────────
+
+Overview
+Records
+Identity
+Website
+Subdomains
+Renew
+Transfer
+```
+
+---
+
+# PHASE 13 — Record management
+
+This is where the platform starts feeling sophisticated.
+
+Allow users to edit:
+
+### Wallet
+
+```text
+ETH
+0x...
+```
+
+### Socials
+
+```text
+Twitter
+@username
+
+GitHub
+username
+
+Discord
+username
+```
+
+### Website
+
+```text
+Website
+https://example.com
+```
+
+### Avatar
+
+Upload/select avatar.
+
+### Email
+
+```text
+hello@example.com
+```
+
+ENS resolvers support text records and other resolution data, and the ENS docs show how applications can interact with those resolver records. ([ENS Documentation][7])
+
+---
+
+# PHASE 14 — Subdomains
+
+Don't build this initially.
+
+But understand it.
+
+Eventually:
+
+```text
+web3kenya.eth
+      │
+      ├── shop.web3kenya.eth
+      ├── wallet.web3kenya.eth
+      ├── academy.web3kenya.eth
+      └── dao.web3kenya.eth
+```
+
+ENS's Name Wrapper is particularly relevant here because it enables functionality around `.eth` names and subnames, including permissions/fuses. ([ENS Documentation][8])
+
+This could eventually become a **huge Web3Kenya business feature.**
+
+---
+
+# PHASE 15 — Database
+
+You don't need a massive backend initially.
+
+Use something you're already familiar with, such as **Supabase/Postgres**.
+
+But remember:
+
+### Blockchain = ownership truth
+
+### Database = application data
+
+For example:
+
+Blockchain:
+
+```text
+mike.eth
+Owner: 0xABC...
+Expiry: ...
+```
+
+Database:
+
+```text
+user_id
+wallet_address
+domain
+purchase_date
+analytics
+preferences
+```
+
+Never treat your database as the authority for blockchain ownership.
+
+---
+
+# PHASE 16 — Authentication
+
+Initially, don't make people create usernames/passwords.
+
+Use:
+
+### Sign-In with Ethereum
+
+Conceptually:
+
+```text
+Connect Wallet
+       ↓
+Sign message
+       ↓
+Wallet proves ownership
+       ↓
+User authenticated
+```
+
+This is much more Web3-native.
+
+---
+
+# PHASE 17 — Security
+
+**Do not rush this part.**
+
+You are dealing with users' wallets and transactions.
+
+Learn:
+
+* phishing
+* transaction spoofing
+* signature phishing
+* malicious contracts
+* reentrancy
+* approval attacks
+* front-running
+* RPC manipulation
+* chain ID validation
+* address validation
+* ENS name normalization
+* ENS name spoofing / homograph attacks
+* private-key security
+
+Most importantly:
+
+### NEVER
+
+ask users for:
+
+```text
+Seed phrase
+Private key
+Recovery phrase
+```
+
+Your application should never need them.
+
+---
+
+# PHASE 18 — Testing
+
+Before real users touch it:
+
+### Testnet first.
+
+Build your application so you can test:
+
+```text
+Sepolia
+```
+
+before mainnet.
+
+Test:
+
+* wallet connection
+* availability
+* registration
+* failed transaction
+* rejected transaction
+* insufficient funds
+* wrong network
+* record updates
+* renewal
+* disconnect
+* page refresh
+* transaction pending
+* transaction failure
+
+You want to intentionally break the application.
+
+---
+
+# PHASE 19 — Deployment
+
+Your existing stack is already suitable:
+
+```text
+GitHub
+   ↓
+Vercel
+   ↓
+Web3Kenya Domains
+```
+
+Backend:
+
+```text
+Supabase
+```
+
+Blockchain:
+
+```text
+Ethereum RPC
+```
+
+Wallet:
+
+```text
+wagmi
+```
+
+Blockchain interaction:
+
+```text
+viem
+```
+
+Frontend:
+
+```text
+Next.js
+TypeScript
+Tailwind
+```
+
+That's a very solid V1 stack.
+
+---
+
+# Your actual V1 tech stack
+
+I'd keep it this simple:
+
+| Layer          | Technology                                |
+| -------------- | ----------------------------------------- |
+| Frontend       | Next.js                                   |
+| Language       | TypeScript                                |
+| Styling        | Tailwind                                  |
+| Web3           | viem                                      |
+| Wallet         | wagmi                                     |
+| Naming         | ENS                                       |
+| Database       | Supabase                                  |
+| Blockchain     | Ethereum                                  |
+| RPC            | Alchemy/Infura/another reputable provider |
+| Authentication | SIWE                                      |
+| Deployment     | Vercel                                    |
+| Code           | GitHub                                    |
+
+Next.js itself is well suited to this because it supports full-stack application patterns, routing, data fetching and server-side functionality. ([Next.js][2])
+
+---
+
+# 🎯 Your learning projects
+
+Here's the part I really want you to follow.
+
+**Don't just watch tutorials.**
+
+Build these **six projects in order**:
+
+### Project 1
+
+**Wallet Connect**
+
+```text
+Connect Wallet
+↓
+Display address
+↓
+Display ETH balance
+```
+
+### Project 2
+
+**ENS Lookup**
+
+```text
+vitalik.eth
+↓
+Address
+↓
+Avatar
+↓
+Text records
+```
+
+### Project 3
+
+**ENS Profile**
+
+```text
+Connect wallet
+↓
+Show user's primary ENS
+↓
+Show avatar
+↓
+Show records
+```
+
+### Project 4
+
+**ENS Domain Search**
+
+```text
+Search
+↓
+Normalize name
+↓
+Check availability
+↓
+Show pricing
+```
+
+### Project 5
+
+**ENS Registration**
+
+```text
+Search
+↓
+Available
+↓
+Select duration
+↓
+Connect wallet
+↓
+Register
+↓
+Transaction
+↓
+Confirmation
+```
+
+### Project 6
+
+🔥 **Web3Kenya Domains**
+
+Combine everything.
+
+---
+
+# And here's what I DON'T want you learning yet
+
+This is important.
+
+Don't disappear down rabbit holes studying:
+
+❌ Zero-knowledge proofs
+❌ MEV
+❌ Advanced Solidity assembly
+❌ Building your own blockchain
+❌ Rollup architecture
+❌ Cryptography mathematics
+❌ Consensus mechanisms
+❌ Writing your own DNS alternative
+❌ Building your own naming protocol
+
+They're fascinating.
+
+But **they don't get Web3Kenya Domains launched.**
+
+---
+
+# Your first milestone
+
+Don't think:
+
+> "I need to build a domain registrar."
+
+Think:
+
+> **"I need to build a Web3Kenya interface that can successfully register one ENS name from a user's wallet."**
+
+Once you can do this:
+
+```text
+                    USER
+                      │
+                      ▼
+               web3kenya domains
+                      │
+                Search "xyz"
+                      │
+                      ▼
+                xyz.eth ✓
+                      │
+                 Connect Wallet
+                      │
+                      ▼
+                  Register
+                      │
+                      ▼
+                 MetaMask
+                      │
+                      ▼
+                 Ethereum
+                      │
+                      ▼
+                  ENS
+                      │
+                      ▼
+               xyz.eth owned
+```
+
+**you have built the core of the product.**
+
+Everything else—beautiful dashboards, M-Pesa, multiple naming protocols, decentralized hosting, analytics, reseller accounts, APIs, subdomains, etc.—can be layered on afterward.
+
+### Your immediate study order
+
+I'd personally have **you** go:
+
+**TypeScript → viem → wagmi → ENS resolution → ENS records → ENS registration → Supabase → SIWE → testing → production**
+
+And because you're already doing **Solidity, Next.js, Vercel and Supabase**, you're actually much closer to this than it might seem.
+
+For the ENS portion, bookmark the official **[ENS developer documentation](https://docs.ens.domains/?utm_source=chatgpt.com)**—especially its resolution, resolver, registration and ENSv2 sections. ([ENS Documentation][9])
+
+If we were doing this together, **I would make Project 1 your starting point rather than having you spend weeks studying theory**: build a tiny `Web3Kenya Domains` prototype that connects a wallet and resolves an `.eth` name, then progressively turn that prototype into the actual platform.
+
+[1]: https://docs.ens.domains/ensv2/tutorial-app-developers/?utm_source=chatgpt.com "For App Developers | ENS Docs"
+[2]: https://nextjs.org/docs?utm_source=chatgpt.com "Next.js Docs | Next.js"
+[3]: https://docs.ens.domains/resolution/?utm_source=chatgpt.com "Resolution | ENS Docs"
+[4]: https://docs.ens.domains/learn/resolution/?utm_source=chatgpt.com "Resolution | ENS Docs"
+[5]: https://docs.ens.domains/resolvers/public/?utm_source=chatgpt.com "Public Resolver | ENS Docs"
+[6]: https://docs.ens.domains/ensv2/tutorial-contract-developers/?utm_source=chatgpt.com "For Contract Developers | ENS Docs"
+[7]: https://docs.ens.domains/resolvers/interacting/?utm_source=chatgpt.com "Interacting with a Resolver | ENS Docs"
+[8]: https://docs.ens.domains/wrapper/overview/?utm_source=chatgpt.com "Name Wrapper Overview | ENS Docs"
+[9]: https://docs.ens.domains/?utm_source=chatgpt.com "ENS Documentation"
