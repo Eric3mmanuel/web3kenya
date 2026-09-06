@@ -1,4 +1,4 @@
-98User-agent: *
+User-agent: *
 Allow: /
 
 # Prioritize important content
