@@ -1,4 +1,4 @@
-User-agent: *
+8User-agent: *
 Allow: /
 
 # Prioritize important content
@@ -16,4 +16,4 @@ Allow: /services/WalletConnection/walletconnection.html
 Allow: /services/RealWorldAssetTokenization/realworldassettokenization.html
 
 # Sitemap location (IMPORTANT: match your real domain version)
-Sitemap: https://www.web3kenya.co.ke/sitemap.xml
+Sitemap: https://www.web3kenya.co.ke/
